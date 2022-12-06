@@ -4,6 +4,7 @@ from ipae2e import (
     sequential_capping,
     parallel_capping,
     aggregate,
+    aggregate_opt
 )
 from sort import sort_functions
 
@@ -26,6 +27,7 @@ def compiled_filename(args):
 
 
 def _compile(args):
+    #program.use_split(3)
     numrows = 2 ** args["NUMROWS_POWER"]
     sort_function = sort_functions[args["SORT_FUNCTION_NAME"]]
     capping_functions = {
@@ -39,22 +41,29 @@ def _compile(args):
     skip_capping = args["SKIP_CAPPING"]
     skip_aggregation = args["SKIP_AGGREGATION"]
 
-    compiler = Compiler(custom_args=["compile.py", "-C", "-R", "32"])
-
+    #compiler = Compiler(custom_args=["compile.py", "-C", "-R", "32"])
+    #Testing new config for compiling larger inputs initially breaking at 2^13
+    compiler = Compiler(custom_args=["compile.py","-C","-l","-D", "--budget=1", "-R", "32"])
+    
     filename = compiled_filename(args)
     print(f"Compiling {filename}")
 
     @compiler.register_function(filename)
     def ipae2e():
+        #print_ln("Hello world")
         # load the data
         reports, match_keys = load_data(numrows)
-
+        # reports.print_reveal_nested() 
+        #print_ln("Sort")
+        
         if not skip_sort:
             # BUG: function calls like ths shouldn't have a side effect.
             # it should ether return back a new reports object, or be a
-            # method on the reports object
+            # method on the reports object 
             sort_function(match_keys, reports)
-
+        
+        #print_ln("attribution")
+        
         if not skip_attribution:
             helperbits, final_credits = oblivious_attribution(
                 reports,
@@ -72,5 +81,7 @@ def _compile(args):
         if not skip_aggregation:
             aggregate_results = aggregate(reports, breakdown_values, final_credits)
             print_ln('{"breakdown_keys": %s}', aggregate_results.reveal())
-
+        else:
+            aggregate_results = aggregate_opt(reports, breakdown_values, final_credits, sort_function)
+    
     compiler.compile_func()

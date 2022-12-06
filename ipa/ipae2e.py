@@ -4,9 +4,18 @@ IPA End-to-end MPC in MP-SPDZ
 import operator
 from enum import IntEnum
 
-from Compiler.library import print_ln, tree_reduce
+from Compiler.library import print_ln, tree_reduce, for_range_opt, for_range
 from Compiler.types import Array, Matrix, sint, sintbit
 
+from sort import radix_sort
+
+def print_reports_row(data, i):
+    print_ln('%s %s %s %s %s %s', data[i][0].reveal(), data[i][1].reveal(), data[i][2].reveal(), data[i][3].reveal())
+
+def print_reports(reports, nb_rows):
+    @for_range_opt(nb_rows)
+    def _(i):
+        print_reports_row(reports,i)
 
 class Columns(IntEnum):
     """
@@ -19,11 +28,34 @@ class Columns(IntEnum):
     BREAKDOWN_KEY = 3
 
 
+def load_data(nb_rows):   
+    reports = Matrix(nb_rows, 4, sint)
+    match_keys = Array(nb_rows, sint)
+    print_ln("I'm loading data")
+    print_ln("nb rows %s", nb_rows)
+    @for_range_opt(nb_rows)
+    def _(i): 
+            #For each field in the report 
+            for j in range(4): 
+                #Read input from different parties 
+                for k in range(3):
+                    #Sum shares    
+                    reports[i][j] += sint.get_input_from(k) 
+    match_keys = reports.get_column(Columns.MATCHKEY)
+    #reports.print_reveal_nested()
+    return reports, match_keys
+
+"""
 def load_data(numrows):
+    
+
     reports = Matrix(numrows, 4, sint)
     reports.assign_vector(sint.get_input_from(0, size=numrows * 4))
     match_keys = reports.get_column(Columns.MATCHKEY)
     return reports, match_keys
+"""
+
+
 
 
 def oblivious_attribution(
@@ -129,6 +161,7 @@ def sequential_capping(numrows, final_credits, helperbits):
 
 def parallel_capping(numrows, final_credits, helperbits):
     # PARALLEL CAPPING ALGORITHM
+    
     stopbit = Array(numrows, sint)
 
     zeros = Array(numrows // 2, sintbit)
@@ -140,7 +173,7 @@ def parallel_capping(numrows, final_credits, helperbits):
     cap = 10
 
     stepsize = 1
-
+    
     while stepsize < numrows // 2:
         stepsize *= 2
 
@@ -156,7 +189,7 @@ def parallel_capping(numrows, final_credits, helperbits):
 
         # Replace the first new_size elements, leaving the others alone
         current_contribution.assign_vector(new_current_contribution)
-
+    
     compare_bit = current_contribution.get_vector() <= cap
     intermediary = cap - helperbits.get_vector(base=1, size=numrows - 1) * (
         cap
@@ -186,7 +219,8 @@ def aggregate(reports, breakdown_values, final_credits):
     breakdown = reports.get_column(Columns.BREAKDOWN_KEY)
 
     breakdown_keys = range(breakdown_values)
-
+    
+    
     # One can use sum, but tree_reduce appears to be more efficient
     return Array(breakdown_values, sint).create_from(
         [
@@ -194,3 +228,42 @@ def aggregate(reports, breakdown_values, final_credits):
             for breakdown_key in breakdown_keys
         ]
     )
+    
+    
+def aggregate_opt(reports, breakdown_values, final_credits, sort_function):
+    # AGGREGATION
+    breakdown = reports.get_column(Columns.BREAKDOWN_KEY)
+    numrows, _ = reports.sizes
+    
+    breakdown_keys = range(breakdown_values)
+    from sort import sort_functions
+    from Compiler.library import print_ln_if
+
+    numrows, _ = reports.sizes
+    matrix_value = Matrix(numrows, 2, sint)
+    output = Matrix(breakdown_values,2, sint)
+
+    
+    matrix_value.set_column(0, breakdown)
+    matrix_value.set_column(1, final_credits.get_vector())
+    #matrix_value.print_reveal_nested()
+    sort_function(breakdown, matrix_value)
+    #matrix_value.print_reveal_nested()
+    
+    prev_key = matrix_value[0][0]
+    sum = 0 
+    j = 0 
+    #matrix_value.print_reveal_nested()
+    for i in range(numrows-1):
+        curr_key = matrix_value[i][0]
+        next_key = matrix_value[i+1][0]
+        
+        same_key = (prev_key == curr_key)
+        
+        sum = sum*same_key + matrix_value[i][1]
+        
+        same_key = (curr_key != next_key)
+        print_ln_if(same_key.reveal(), "%s %s", curr_key.reveal(), sum.reveal())
+        prev_key = curr_key   
+    
+    print_ln("%s %s", matrix_value[numrows-1][0].reveal(), sum.reveal())
