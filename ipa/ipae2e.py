@@ -237,7 +237,7 @@ def aggregate_opt(reports, breakdown_values, final_credits, sort_function):
     
     breakdown_keys = range(breakdown_values)
     from sort import sort_functions
-    from Compiler.library import print_ln_if
+    from Compiler.library import print_ln_if, do_while
 
     numrows, _ = reports.sizes
     matrix_value = Matrix(numrows, 2, sint)
@@ -246,14 +246,10 @@ def aggregate_opt(reports, breakdown_values, final_credits, sort_function):
     
     matrix_value.set_column(0, breakdown)
     matrix_value.set_column(1, final_credits.get_vector())
-    #matrix_value.print_reveal_nested()
     sort_function(breakdown, matrix_value)
-    #matrix_value.print_reveal_nested()
     
     prev_key = matrix_value[0][0]
     sum = 0 
-    j = 0 
-    #matrix_value.print_reveal_nested()
     for i in range(numrows-1):
         curr_key = matrix_value[i][0]
         next_key = matrix_value[i+1][0]
@@ -261,9 +257,29 @@ def aggregate_opt(reports, breakdown_values, final_credits, sort_function):
         same_key = (prev_key == curr_key)
         
         sum = sum*same_key + matrix_value[i][1]
-        
+        matrix_value[i][1]  = sum  
         same_key = (curr_key != next_key)
-        print_ln_if(same_key.reveal(), "%s %s", curr_key.reveal(), sum.reveal())
-        prev_key = curr_key   
-    
+        print_ln_if(same_key.reveal(),"%s %s", curr_key.reveal(), sum.reveal())
+        prev_key = curr_key  
+
     print_ln("%s %s", matrix_value[numrows-1][0].reveal(), sum.reveal())
+    """ 
+    prev_key = matrix_value[0][0]
+    @for_range(numrows-1)
+    def _(i): 
+        @do_while
+        def _():
+            i.update(i+1)
+            curr_key = matrix_value[i][0]
+            next_key = matrix_value[i+1][0]
+            same_key = (next_key == curr_key)*(i<numrows-2)
+            #print_ln("%s %s", curr_key.reveal(), next_key.reveal())
+            #print_ln("%s", same_key.reveal()) 
+            return (same_key.reveal())
+        #print_ln("%s", i)
+        #print_ln("%s", curr_key.reveal())
+        print_ln("%s %s", matrix_value[i][0].reveal(), matrix_value[i][1].reveal())
+    """
+
+
+
