@@ -235,21 +235,19 @@ def aggregate_opt(reports, breakdown_values, final_credits, sort_function):
     breakdown = reports.get_column(Columns.BREAKDOWN_KEY)
     numrows, _ = reports.sizes
     
-    breakdown_keys = range(breakdown_values)
     from sort import sort_functions
     from Compiler.library import print_ln_if, do_while
 
     numrows, _ = reports.sizes
     matrix_value = Matrix(numrows, 2, sint)
-    output = Matrix(breakdown_values,2, sint)
-
     
     matrix_value.set_column(0, breakdown)
     matrix_value.set_column(1, final_credits.get_vector())
     sort_function(breakdown, matrix_value)
-    
+
+    """
     prev_key = matrix_value[0][0]
-    sum = 0 
+    sum = 0
     for i in range(numrows-1):
         curr_key = matrix_value[i][0]
         next_key = matrix_value[i+1][0]
@@ -264,22 +262,16 @@ def aggregate_opt(reports, breakdown_values, final_credits, sort_function):
 
     print_ln("%s %s", matrix_value[numrows-1][0].reveal(), sum.reveal())
     """ 
-    prev_key = matrix_value[0][0]
-    @for_range(numrows-1)
-    def _(i): 
+    
+    @for_range_opt(numrows-1)
+    def _(i):
         @do_while
         def _():
-            i.update(i+1)
             curr_key = matrix_value[i][0]
             next_key = matrix_value[i+1][0]
             same_key = (next_key == curr_key)*(i<numrows-2)
-            #print_ln("%s %s", curr_key.reveal(), next_key.reveal())
-            #print_ln("%s", same_key.reveal()) 
+            matrix_value[i+1][1]  = same_key*matrix_value[i][1] + matrix_value[i+1][1] 
+            i.update(i+1)
             return (same_key.reveal())
-        #print_ln("%s", i)
-        #print_ln("%s", curr_key.reveal())
-        print_ln("%s %s", matrix_value[i][0].reveal(), matrix_value[i][1].reveal())
-    """
-
-
-
+        print_ln("%s %s", matrix_value[i-1][0].reveal(), matrix_value[i-1][1].reveal())
+   
