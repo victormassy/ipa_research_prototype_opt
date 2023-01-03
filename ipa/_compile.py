@@ -52,7 +52,7 @@ def _compile(args):
     def ipae2e():
         # load the data
         reports, match_keys = load_data(numrows)
-        # reports.print_reveal_nested() 
+        reports.print_reveal_nested() 
         
         if not skip_sort:
             # BUG: function calls like ths shouldn't have a side effect.
@@ -61,7 +61,7 @@ def _compile(args):
             sort_function(match_keys, reports)
         
         #print_ln("attribution")
-        
+        reports.print_reveal_nested() 
         if not skip_attribution:
             helperbits, final_credits = oblivious_attribution(
                 reports,

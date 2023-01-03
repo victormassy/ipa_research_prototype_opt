@@ -30,7 +30,6 @@ class Columns(IntEnum):
 def load_data(nb_rows):   
     reports = Matrix(nb_rows, 4, sint)
     match_keys = Array(nb_rows, sint)
-    print_ln("nb rows %s", nb_rows)
     @for_range_opt(nb_rows)
     def _(i): 
             #For each field in the report 

@@ -1,8 +1,8 @@
 1
 1
-ipae2e-0:2810740
+ipae2e-0:5623
 1 0
 0
-../ipa compile --numrows_power=17 --breakdown_values=100 --skip_aggregation
+ipa compile --breakdown_values=100 --numrows_power=4
 R:32
-opts: edabit split
+opts: split edabit
