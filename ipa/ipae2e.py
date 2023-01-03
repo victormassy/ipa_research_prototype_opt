@@ -19,9 +19,8 @@ def print_reports(reports, nb_rows):
 
 class Columns(IntEnum):
     """
-    These are the Columns in the reports Matrix
+    Columns in the reports Matrix
     """
-
     MATCHKEY = 0
     IS_TRIGGER = 1
     VALUE = 2
@@ -31,7 +30,6 @@ class Columns(IntEnum):
 def load_data(nb_rows):   
     reports = Matrix(nb_rows, 4, sint)
     match_keys = Array(nb_rows, sint)
-    print_ln("I'm loading data")
     print_ln("nb rows %s", nb_rows)
     @for_range_opt(nb_rows)
     def _(i): 
