@@ -1,7 +1,8 @@
-Programs/Public-Input/
-Programs/Bytecode/
-Programs/Schedules/
+ipa/Programs/Public-Input/
+ipa/Programs/Bytecode/
+ipa/Programs/Schedules/
 __pycache__/
 dist/
 mp_spdz_compiler.egg-info/
 input/*
+
