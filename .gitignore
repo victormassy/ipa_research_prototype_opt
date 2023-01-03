@@ -5,3 +5,4 @@ Programs/Schedules/
 __pycache__/
 dist/
 mp_spdz_compiler.egg-info/
+input/*

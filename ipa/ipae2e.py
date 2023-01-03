@@ -146,7 +146,8 @@ def sequential_capping(numrows, final_credits, helperbits):
     current_contribution.assign_vector(0)
     cap = 10
     rows = range(numrows)
-    for row in rows:
+    @for_range_opt(numrows)
+    def _(row):
         current_contribution[row] = current_contribution[row] * helperbits[row]
 
         _min = (final_credits[row] < cap - current_contribution[row]).if_else(

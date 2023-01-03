@@ -41,20 +41,18 @@ def _compile(args):
     skip_capping = args["SKIP_CAPPING"]
     skip_aggregation = args["SKIP_AGGREGATION"]
 
-    #compiler = Compiler(custom_args=["compile.py", "-C", "-R", "32"])
+    compiler = Compiler(custom_args=["compile.py", "-C", "-R", "32"])
     #Testing new config for compiling larger inputs initially breaking at 2^13
-    compiler = Compiler(custom_args=["compile.py","-C","-l","-D", "--budget=1", "-R", "32"])
+    #compiler = Compiler(custom_args=["compile.py","-C","-l","-D", "--budget=1000", "-R", "32"])
     
     filename = compiled_filename(args)
     print(f"Compiling {filename}")
 
     @compiler.register_function(filename)
     def ipae2e():
-        #print_ln("Hello world")
         # load the data
         reports, match_keys = load_data(numrows)
         # reports.print_reveal_nested() 
-        #print_ln("Sort")
         
         if not skip_sort:
             # BUG: function calls like ths shouldn't have a side effect.
