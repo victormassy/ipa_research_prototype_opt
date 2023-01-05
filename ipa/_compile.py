@@ -51,6 +51,7 @@ def _compile(args):
     @compiler.register_function(filename)
     def ipae2e():
         # load the data
+        """"
         reports, match_keys = load_data(numrows)
         reports.print_reveal_nested() 
         
@@ -81,5 +82,5 @@ def _compile(args):
             print_ln('{"breakdown_keys": %s}', aggregate_results.reveal())
         else:
             aggregate_results = aggregate_opt(reports, breakdown_values, final_credits, sort_function)
-    
+        """ 
     compiler.compile_func()
