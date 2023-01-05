@@ -51,10 +51,11 @@ def _compile(args):
     @compiler.register_function(filename)
     def ipae2e():
         # load the data
-        """"
+        
         reports, match_keys = load_data(numrows)
         reports.print_reveal_nested() 
         
+        """
         if not skip_sort:
             # BUG: function calls like ths shouldn't have a side effect.
             # it should ether return back a new reports object, or be a
