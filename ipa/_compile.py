@@ -51,7 +51,7 @@ def _compile(args):
     @compiler.register_function(filename)
     def ipae2e():
         # load the data
-        
+        print_ln("Hello world") 
         reports, match_keys = load_data(numrows)
         reports.print_reveal_nested() 
         
